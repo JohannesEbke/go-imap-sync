@@ -1,3 +1,5 @@
+// go-imap-sync provides a simple command line tool to download emails from an IMAP mailbox. Each email is saved as a
+// plain text file (per default in the messages/ subdirectory). Emails are only downloaded once if run repeatedly.
 package main
 
 import (

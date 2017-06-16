@@ -1,3 +1,7 @@
+// Package imapsync provides a single function to download an IMAP folder to a local directory, with each email
+// in a plain text file. Emails are downloaded only once, even if the function is run repeatedly.
+//
+// A command line tool is available at github.com/JohannesEbke/go-imap-sync/cmd/go-imap-sync
 package imapsync
 
 import (
@@ -14,7 +18,7 @@ import (
 	"github.com/emersion/go-imap/client"
 )
 
-// Sync downloads and saves all not-yet downloaded emails from the Mailbox to the emailDir
+// Sync downloads and saves all not-yet downloaded emails from the mailbox to the emailDir
 func Sync(server, user, password, mailbox, emailDir string) error {
 	err := os.MkdirAll(emailDir, 0700)
 	if err != nil {
