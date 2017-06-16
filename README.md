@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/JohannesEbke/go-imap-sync?status.svg)](https://godoc.org/github.com/JohannesEbke/go-imap-sync)
+[![GoDoc](https://godoc.org/github.com/JohannesEbke/go-imap-sync?status.svg)](https://godoc.org/github.com/JohannesEbke/go-imap-sync) [![Build Status](https://travis-ci.org/JohannesEbke/go-imap-sync.svg?branch=master)](https://travis-ci.org/JohannesEbke/go-imap-sync) [![Go Report Card](https://goreportcard.com/badge/github.com/JohannesEbke/go-imap-sync)](https://goreportcard.com/report/github.com/JohannesEbke/go-imap-sync)
 
 # go-imap-sync
 Library and command-line tool to sync the contents of an IMAP folder to disk, using https://github.com/emersion/go-imap.
