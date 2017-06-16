@@ -12,7 +12,7 @@ derived from the email message ID. This enables imapsync to avoid downloading em
 go get github.com/JohannesEbke/go-imap-sync/cmd/go-imap-sync
 go-imap-sync -server mail.example.com:993 -username me -mailbox INBOX
 ```
-You will be prompted for your password. If you use the program in scripts, you can also set the `IMAP\_PASSWORD`
+You will be prompted for your password. If you use the program in scripts, you can also set the `IMAP_PASSWORD`
 environment variable.
 
 ## Usage as a Library
