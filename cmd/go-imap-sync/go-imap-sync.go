@@ -4,7 +4,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -35,9 +34,9 @@ func main() {
 	flag.Parse()
 
 	if server == "" {
-		fmt.Println("go-imap-sync copies emails from an IMAP mailbox to your computer. Usage:")
+		log.Println("go-imap-sync copies emails from an IMAP mailbox to your computer. Usage:")
 		flag.PrintDefaults()
-		return
+		log.Fatal("Required parameters not found.")
 	}
 
 	password := getPassword(username, server)

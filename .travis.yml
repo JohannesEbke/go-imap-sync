@@ -1,0 +1,14 @@
+language: go
+
+go:
+  - 1.8
+
+install:
+  - go get -u github.com/alecthomas/gometalinter
+  - gometalinter --install
+
+script:
+  - ./lint_gofmt.sh
+  - ./lint_metalinter.sh
+  - go build .
+  - cd cmd/go-imap-sync && go build . && ./go-imap-sync 2>&1 | grep Usage
