@@ -18,16 +18,21 @@ import (
 	"github.com/emersion/go-imap/client"
 )
 
+type Result struct {
+	ExistingEmails []string
+	NewEmails      []string
+}
+
 // Sync downloads and saves all not-yet downloaded emails from the mailbox to the emailDir
-func Sync(server, user, password, mailbox, emailDir string) error {
+func Sync(server, user, password, mailbox, emailDir string) (*Result, error) {
 	err := os.MkdirAll(emailDir, 0700)
 	if err != nil {
-		return fmt.Errorf("Error creating email directory %v: %v", emailDir, err)
+		return nil, fmt.Errorf("Error creating email directory %v: %v", emailDir, err)
 	}
 
 	connection, err := connect(server, user, password)
 	if err != nil {
-		return fmt.Errorf("Error connecting to %v: %v", server, err)
+		return nil, fmt.Errorf("Error connecting to %v: %v", server, err)
 	}
 
 	defer func() {
@@ -39,7 +44,7 @@ func Sync(server, user, password, mailbox, emailDir string) error {
 
 	_, err = connection.Select(mailbox, true)
 	if err != nil {
-		return fmt.Errorf("Error opening mailbox '%v': %v", mailbox, err)
+		return nil, fmt.Errorf("Error opening mailbox '%v': %v", mailbox, err)
 	}
 
 	log.Printf("Listing all messages in %v...", mailbox)
@@ -52,12 +57,29 @@ func Sync(server, user, password, mailbox, emailDir string) error {
 		seqSet.AddNum(messageSeqNr)
 		err2 := fetchMessages(connection, emailDir, seqSet)
 		if err2 != nil {
-			return fmt.Errorf("Error fetching message '%v': %v", messageSeqNr, err2)
+			return nil, fmt.Errorf("Error fetching message '%v': %v", messageSeqNr, err2)
 		}
 		fmt.Println(".")
 	}
 	log.Printf("Finished syncing.")
-	return nil
+
+	// Calculate Result structure
+	isNew := make(map[uint32]bool)
+	existingEmails := []string{}
+	newEmails := []string{}
+	for _, seqNum := range messagesToFetch {
+		newEmails = append(newEmails, messageFileName(emailDir, seqNumMessageIDMap[seqNum]))
+		isNew[seqNum] = true
+	}
+	for seqNum, messageId := range seqNumMessageIDMap {
+		if !isNew[seqNum] {
+			existingEmails = append(existingEmails, messageFileName(emailDir, messageId))
+		}
+	}
+	return &Result{
+		ExistingEmails: existingEmails,
+		NewEmails:      newEmails,
+	}, nil
 }
 
 // connect performs an interactive connection to the given IMAP server
