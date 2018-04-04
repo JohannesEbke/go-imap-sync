@@ -18,6 +18,8 @@ import (
 	"github.com/emersion/go-imap/client"
 )
 
+// Result contains slices of (relative) paths to the newly (NewEmails) and previously downloaded emails (ExistingEmails).
+// Only emails still present on the server will be returned.
 type Result struct {
 	ExistingEmails []string
 	NewEmails      []string
@@ -111,7 +113,7 @@ func getMessageIDMap(c *client.Client) (emails map[uint32]string) {
 	}
 	messageChan := make(chan *imap.Message)
 	go func() {
-		if err := c.Fetch(seqset, []string{"ENVELOPE", "UID"}, messageChan); err != nil {
+		if err := c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope, imap.FetchUid}, messageChan); err != nil {
 			log.Fatalf("Error fetching list of messages: %v", err)
 		}
 	}()
@@ -139,12 +141,17 @@ func getMessagesToFetch(emailDir string, seqNumMessageIDMap map[uint32]string) (
 // fetchMessages downloads the messages specified by the given SeqSet to the emailDir
 func fetchMessages(connection *client.Client, emailDir string, messagesToFetch *imap.SeqSet) error {
 	messageChan := make(chan *imap.Message)
-	err := connection.Fetch(messagesToFetch, []string{"ENVELOPE", "BODY[]"}, messageChan)
-	if err != nil {
-		return err
-	}
+	section := &imap.BodySectionName{}
+	done := make(chan error, 1)
+	go func() {
+		done <- connection.Fetch(messagesToFetch, []imap.FetchItem{imap.FetchEnvelope, section.FetchItem()}, messageChan)
+	}()
 	for msg := range messageChan {
-		body, err := ioutil.ReadAll(msg.GetBody("BODY[]"))
+		sectionName, err := imap.ParseBodySectionName(imap.FetchItem("BODY[]"))
+		if err != nil {
+			return err
+		}
+		body, err := ioutil.ReadAll(msg.GetBody(sectionName))
 		if err != nil {
 			return err
 		}
@@ -153,7 +160,7 @@ func fetchMessages(connection *client.Client, emailDir string, messagesToFetch *
 			return err
 		}
 	}
-	return nil
+	return <-done
 }
 
 // sha512TruncatedHex returns a hex representation of the first 32 bytes of the SHA512 hash of the given string
