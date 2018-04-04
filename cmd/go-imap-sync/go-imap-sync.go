@@ -41,7 +41,7 @@ func main() {
 
 	password := getPassword(username, server)
 
-	err := imapsync.Sync(server, username, password, mailbox, emailDir)
+	_, err := imapsync.Sync(server, username, password, mailbox, emailDir)
 	if err != nil {
 		log.Fatal(err)
 	}

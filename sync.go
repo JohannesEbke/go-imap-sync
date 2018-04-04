@@ -71,9 +71,9 @@ func Sync(server, user, password, mailbox, emailDir string) (*Result, error) {
 		newEmails = append(newEmails, messageFileName(emailDir, seqNumMessageIDMap[seqNum]))
 		isNew[seqNum] = true
 	}
-	for seqNum, messageId := range seqNumMessageIDMap {
+	for seqNum, messageID := range seqNumMessageIDMap {
 		if !isNew[seqNum] {
-			existingEmails = append(existingEmails, messageFileName(emailDir, messageId))
+			existingEmails = append(existingEmails, messageFileName(emailDir, messageID))
 		}
 	}
 	return &Result{
