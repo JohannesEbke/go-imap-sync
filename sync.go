@@ -26,13 +26,13 @@ type Result struct {
 }
 
 // Sync downloads and saves all not-yet downloaded emails from the mailbox to the emailDir
-func Sync(server, user, password, mailbox, emailDir string) (*Result, error) {
+func Sync(server, user, password, mailbox, emailDir string, tls bool) (*Result, error) {
 	err := os.MkdirAll(emailDir, 0700)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating email directory %v: %v", emailDir, err)
 	}
 
-	connection, err := connect(server, user, password)
+	connection, err := connect(server, user, password, tls)
 	if err != nil {
 		return nil, fmt.Errorf("Error connecting to %v: %v", server, err)
 	}
@@ -85,9 +85,15 @@ func Sync(server, user, password, mailbox, emailDir string) (*Result, error) {
 }
 
 // connect performs an interactive connection to the given IMAP server
-func connect(server, username, password string) (*client.Client, error) {
+func connect(server, username, password string, tls bool) (*client.Client, error) {
 	log.Printf("Connecting to %v...", server)
-	c, err := client.DialTLS(server, nil)
+	var c *client.Client
+	var err error
+	if tls {
+		c, err = client.DialTLS(server, nil)
+	} else {
+		c, err = client.Dial(server)
+	}
 	if err != nil {
 		return nil, err
 	}

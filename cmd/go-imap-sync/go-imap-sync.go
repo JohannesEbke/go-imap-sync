@@ -27,10 +27,12 @@ func getPassword(username, server string) (password string) {
 
 func main() {
 	var server, username, mailbox, emailDir string
+	var disableTls bool
 	flag.StringVar(&server, "server", "", "sync from this mail server and port (e.g. mail.example.com:993)")
 	flag.StringVar(&username, "username", "", "username for logging into the mail server")
 	flag.StringVar(&mailbox, "mailbox", "", "mailbox to read messages from (typically INBOX or INBOX/subfolder)")
 	flag.StringVar(&emailDir, "messagesDir", "messages", "local directory to save messages in")
+	flag.BoolVar(&disableTls, "disableTls", false, "optionally disable TLS for IMAP")
 	flag.Parse()
 
 	if server == "" {
@@ -41,7 +43,7 @@ func main() {
 
 	password := getPassword(username, server)
 
-	_, err := imapsync.Sync(server, username, password, mailbox, emailDir)
+	_, err := imapsync.Sync(server, username, password, mailbox, emailDir, disableTls)
 	if err != nil {
 		log.Fatal(err)
 	}
